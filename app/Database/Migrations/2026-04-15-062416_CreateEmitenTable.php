@@ -28,6 +28,16 @@ class CreateEmitenTable extends Migration
                 'constraint' => '50',
                 'null' => true,
             ],
+            'ai_analysis' => [
+                'type' => 'TEXT',
+                'null' => true,
+                'after' => 'sector' // Menaruh kolom setelah kolom sector agar rapi
+            ],
+            'last_ai_update' => [
+                'type' => 'DATETIME',
+                'null' => true,
+                'after' => 'ai_analysis'
+            ],
             'created_at' => [
                 'type' => 'DATETIME',
                 'null' => true,

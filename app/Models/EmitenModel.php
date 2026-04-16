@@ -13,7 +13,7 @@ class EmitenModel extends Model
     protected $protectFields = true;
 
     // Kolom yang boleh diisi (mass assignment)
-    protected $allowedFields = ['code', 'name', 'sector'];
+    protected $allowedFields = ['code', 'name', 'sector', 'ai_analysis', 'last_ai_update'];
 
     // Dates
     protected $useTimestamps = true;

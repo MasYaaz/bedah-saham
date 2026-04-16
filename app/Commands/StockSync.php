@@ -18,7 +18,7 @@ class StockSync extends BaseCommand
         CLI::write('Background Sync Started...', 'green');
 
         while (true) {
-            $result = $fetcher->fetchStepByStep(200);
+            $result = $fetcher->fetchStepByStep(25);
             CLI::write('[' . date('H:i:s') . '] ' . $result);
 
             // Jeda 30 detik agar tidak membebani CPU Ryzen 5500 kamu
