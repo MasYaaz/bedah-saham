@@ -25,7 +25,7 @@ class StockFetcher
     public function fetchStepByStep(int $limit = 25)
     {
         // 1. Ambil antrian berdasarkan updated_at paling lama (prioritas data basi)
-        $queue = $this->stockDataModel->orderBy('updated_at', 'ASC')->limit($limit)->findAll();
+        $queue = $this->stockDataModel->orderBy('price_updated_at', 'ASC')->limit($limit)->findAll();
 
         if (empty($queue)) {
             return "Antrian kosong. Pastikan data emiten sudah diinisialisasi.";
@@ -70,13 +70,13 @@ class StockFetcher
                         'previous_close' => $meta['chartPreviousClose'] ?? 0,
                         'day_high' => $meta['regularMarketDayHigh'] ?? 0,
                         'day_low' => $meta['regularMarketDayLow'] ?? 0,
-                        'updated_at' => date('Y-m-d H:i:s') // Reset antrian ke waktu terbaru
+                        'price_updated_at' => date('Y-m-d H:i:s') // Reset antrian ke waktu terbaru
                     ]);
 
                     $successCount++;
                 } else {
                     // Jika data meta tidak ada, tetap update timestamp agar tidak stuck di antrian
-                    $this->stockDataModel->update($item['id'], ['updated_at' => date('Y-m-d H:i:s')]);
+                    $this->stockDataModel->update($item['id'], ['price_updated_at' => date('Y-m-d H:i:s')]);
                     $failCount++;
                     log_message('debug', "Data tidak ditemukan untuk simbol: {$symbol}");
                 }
@@ -89,11 +89,11 @@ class StockFetcher
                 log_message('error', "Fetch Error [{$symbol}]: " . $e->getMessage());
 
                 // Tetap update timestamp agar antrian terus berputar
-                $this->stockDataModel->update($item['id'], ['updated_at' => date('Y-m-d H:i:s')]);
+                $this->stockDataModel->update($item['id'], ['price_updated_at' => date('Y-m-d H:i:s')]);
                 $failCount++;
             }
         }
 
-        return "Proses Selesai: {$successCount} Berhasil, {$failCount} Gagal.";
+        return "Update Harga Emiten Selesai: {$successCount} Berhasil, {$failCount} Gagal.";
     }
 }

@@ -1,0 +1,217 @@
+<style>
+    .market-card {
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+    }
+
+    .table-dark {
+        --bs-table-bg: transparent;
+        --bs-table-hover-bg: rgba(56, 189, 248, 0.04);
+    }
+
+    .stock-row {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .stock-row:hover {
+        background: rgba(56, 189, 248, 0.04) !important;
+    }
+
+    .badge-code {
+        background: rgba(56, 189, 248, 0.1);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        padding: 0.4rem 0.7rem;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .company-logo-sm {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        object-fit: contain;
+        background: white;
+        padding: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo-placeholder {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #1e293b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Search Bar Styling */
+    .search-wrapper {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        padding: 6px 18px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .search-wrapper:focus-within {
+        border-color: #38bdf8;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+        background: rgba(15, 23, 42, 0.8);
+    }
+
+    .search-input {
+        background: transparent;
+        border: none;
+        color: #f8fafc;
+        padding: 10px;
+        width: 100%;
+        outline: none;
+        font-weight: 500;
+    }
+</style>
+
+<div class="row g-4 mb-4 align-items-center">
+    <div class="col-md-7 text-center text-md-start">
+        <h3
+            class="fw-bold mb-1 text-white d-flex align-items-center justify-content-center justify-content-md-start gap-2">
+            <i data-lucide="layout-list" class="text-info" size="24"></i>
+            Market Explorer
+        </h3>
+        <p class="text-slate-500 mb-0 small">Menampilkan <span class="text-info fw-bold"><?= count($stocks) ?></span>
+            emiten pilihan terbaik</p>
+    </div>
+    <div class="col-md-5">
+        <div class="search-wrapper d-flex align-items-center">
+            <i data-lucide="search" size="18" class="text-slate-500"></i>
+            <input type="text" id="stockSearch" class="search-input"
+                placeholder="Cari kode (AMRT) atau nama perusahaan...">
+        </div>
+    </div>
+</div>
+
+<div class="market-card shadow-2xl overflow-hidden">
+    <div class="table-responsive" style="max-height: 70vh;">
+        <table class="table table-dark table-hover align-middle mb-0" id="stockTable">
+            <thead class="sticky-top" style="z-index: 10; background: #111827;">
+                <tr class="text-slate-500"
+                    style="font-size: 0.7rem; letter-spacing: 1.5px; border-bottom: 2px solid rgba(255,255,255,0.05);">
+                    <th class="ps-4 py-4">EMITEN</th>
+                    <th class="py-4">PERUSAHAAN</th>
+                    <th class="py-4 text-end">HARGA</th>
+                    <th class="py-4 text-end">PERUBAHAN</th>
+                    <th class="py-4 text-center">RANGE (H/L)</th>
+                    <th class="py-4 text-center pe-4">OPSI</th>
+                </tr>
+            </thead>
+            <tbody id="stockTableBody">
+                <?php foreach ($stocks as $s): ?>
+                    <?php
+                    $change = $s['last_price'] - $s['previous_close'];
+                    $percent = ($s['previous_close'] > 0) ? ($change / $s['previous_close']) * 100 : 0;
+                    ?>
+                    <tr id="row-<?= $s['code'] ?>" class="stock-row">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <?php if (!empty($s['image'])): ?>
+                                    <img src="<?= $s['image'] ?>" class="company-logo-sm" alt="logo" loading="lazy">
+                                <?php else: ?>
+                                    <div class="logo-placeholder">
+                                        <i data-lucide="building-2" size="16"></i>
+                                    </div>
+                                <?php endif; ?>
+                                <div>
+                                    <div class="badge-code"><?= $s['code'] ?></div>
+                                    <div class="text-slate-500 mt-1" style="font-size: 0.65rem; font-weight: 500;">
+                                        <?= $s['sector'] ?></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-truncate text-light fw-medium stock-name-text"
+                                style="max-width: 220px; font-size: 0.9rem;">
+                                <?= $s['name'] ?>
+                            </div>
+                        </td>
+                        <td class="text-end fw-bold text-white last-price"
+                            style="font-size: 1rem; font-family: 'JetBrains Mono', monospace;">
+                            <?= number_format($s['last_price'], 0, ',', '.') ?>
+                        </td>
+                        <td class="text-end">
+                            <div
+                                class="fw-bold small d-flex align-items-center justify-content-end gap-1 <?= $change >= 0 ? 'text-success' : 'text-danger' ?>">
+                                <i data-lucide="<?= $change >= 0 ? 'trending-up' : 'trending-down' ?>" size="14"></i>
+                                <?= number_format(abs($percent), 2) ?>%
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div style="font-size: 0.7rem; line-height: 1.4;">
+                                <div class="text-success opacity-75">H: <?= number_format($s['day_high'], 0, ',', '.') ?>
+                                </div>
+                                <div class="text-danger opacity-75">L: <?= number_format($s['day_low'], 0, ',', '.') ?>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center pe-4">
+                            <a href="<?= base_url('stock/detail/' . $s['code']) ?>"
+                                class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold" style="font-size: 0.75rem;">
+                                Analisis
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Inisialisasi Lucide
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // Live Search Logic
+    document.getElementById('stockSearch').addEventListener('input', function () {
+        const filter = this.value.toUpperCase().trim();
+        const rows = document.querySelectorAll('#stockTableBody .stock-row');
+
+        rows.forEach(row => {
+            const codeText = row.querySelector('.badge-code').textContent.toUpperCase();
+            const nameText = row.querySelector('.stock-name-text').textContent.toUpperCase();
+
+            if (codeText.includes(filter) || nameText.includes(filter)) {
+                row.style.display = "";
+                row.style.opacity = "1";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+
+    // Real-time UI Update (dari Dashboard interval)
+    window.updateTableUI = function (data) {
+        data.forEach(stock => {
+            const row = document.getElementById(`row-${stock.code}`);
+            if (row) {
+                const priceEl = row.querySelector('.last-price');
+                const newPrice = new Intl.NumberFormat('id-ID').format(stock.last_price);
+
+                if (priceEl.innerText !== newPrice) {
+                    priceEl.innerText = newPrice;
+                    // Flash effect
+                    priceEl.style.color = '#38bdf8';
+                    priceEl.style.transition = 'color 0.3s';
+                    setTimeout(() => priceEl.style.color = 'white', 2000);
+                }
+            }
+        });
+    }
+</script>

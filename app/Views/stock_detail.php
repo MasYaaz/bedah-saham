@@ -1,21 +1,110 @@
 <?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
 
+<?php
+date_default_timezone_set('Asia/Jakarta');
+$now = new DateTime();
+$day = $now->format('N');
+$time = $now->format('H:i');
+
+$is_open = false;
+if ($day >= 1 && $day <= 5) {
+    if ($day == 5) { // Jumat
+        if (($time >= '09:00' && $time <= '11:30') || ($time >= '13:30' && $time <= '16:00'))
+            $is_open = true;
+    } else { // Senin - Kamis
+        if (($time >= '09:00' && $time <= '12:00') || ($time >= '13:30' && $time <= '16:00'))
+            $is_open = true;
+    }
+}
+?>
+
+<script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
 <style>
-    .detail-card {
-        background: linear-gradient(145deg, #1e293b, #111827);
-        border: 1px solid #334155;
-        border-radius: 24px;
+    .detail-card-header {
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Efek cahaya halus di pojok kartu */
+    .detail-card-header::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.03), transparent 50%);
+        pointer-events: none;
+    }
+
+    .market-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .status-open {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-closed {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .pulse-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: currentColor;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.5);
+            opacity: 0.5;
+        }
+
+        100% {
+            transform: scale(0.95);
+            opacity: 1;
+        }
     }
 
     .info-label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: #64748b;
         text-transform: uppercase;
         letter-spacing: 1px;
-        margin-bottom: 2px;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
     .info-value {
@@ -42,106 +131,151 @@
 
     #aiContent {
         color: #cbd5e1;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         line-height: 1.7;
     }
 
-    #aiContent h1,
-    #aiContent h2 {
-        color: #38bdf8;
-        font-size: 1.1rem;
-        margin-top: 1rem;
-    }
-
     .company-img {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
         object-fit: contain;
         background: white;
-        padding: 4px;
+        padding: 6px;
+        border: 2px solid #334155;
+    }
+
+    .stat-item {
+        padding: 12px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }
 </style>
 
-<div class="detail-card p-4 mb-4 shadow-lg border-info border-opacity-10">
+<div class="detail-card-header p-4 mb-4 shadow-2xl">
     <div class="row align-items-center">
-        <div class="col-md-6 d-flex align-items-center gap-3">
-            <?php if (isset($fundamental['image'])): ?>
-                <img src="<?= $fundamental['image'] ?>" class="company-img" alt="logo">
-            <?php endif; ?>
+        <div class="col-md-7 d-flex align-items-center gap-3">
+            <div class="position-relative">
+                <?php if ($stock['image']): ?>
+                    <img src="<?= $stock['image'] ?>" class="company-img shadow-sm" alt="logo">
+                <?php else: ?>
+                    <div
+                        class="company-img d-flex align-items-center justify-content-center bg-dark text-slate-500 border border-slate-700">
+                        <i data-lucide="building-2" size="24"></i>
+                    </div>
+                <?php endif; ?>
+            </div>
+
             <div>
                 <div class="d-flex align-items-center gap-2 mb-1">
-                    <h1 class="h3 fw-bold text-info mb-0"><?= $stock['code'] ?></h1>
-                    <span class="badge-sector"><?= $fundamental['sector'] ?? $stock['sector'] ?></span>
+                    <h1 class="h3 fw-bold text-white mb-0" style="letter-spacing: -0.5px;"><?= $stock['code'] ?></h1>
+                    <span class="badge-sector"><?= $stock['sector'] ?></span>
                 </div>
-                <h5 class="text-secondary small fw-medium mb-0"><?= $fundamental['companyName'] ?? $stock['name'] ?>
-                </h5>
+                <h5 class="text-slate-400 small fw-medium mb-0 opacity-80"><?= $stock['name'] ?></h5>
             </div>
         </div>
-        <div class="col-md-6 text-md-end mt-3 mt-md-0">
-            <div class="info-label">Current Price</div>
-            <div class="h2 fw-bold text-white mb-0">IDR <?= number_format($stock['last_price'], 0, ',', '.') ?></div>
-            <?php
-            $change = $stock['last_price'] - $stock['previous_close'];
-            $pct = ($stock['previous_close'] > 0) ? ($change / $stock['previous_close']) * 100 : 0;
-            ?>
-            <div class="<?= $change >= 0 ? 'text-success' : 'text-danger' ?> fw-bold small">
-                <i class="fa-solid <?= $change >= 0 ? 'fa-caret-up' : 'fa-caret-down' ?> me-1"></i>
-                <?= number_format(abs($pct), 2) ?>%
-                (<?= ($change >= 0 ? '+' : '-') . number_format(abs($change), 0, ',', '.') ?>)
+
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+            <div class="mb-2">
+                <?php if ($is_open): ?>
+                    <div class="market-status-badge status-open">
+                        <span class="pulse-dot"></span>
+                        Market Open
+                    </div>
+                <?php else: ?>
+                    <div class="market-status-badge status-closed">
+                        <i data-lucide="lock" size="10"></i>
+                        Market Closed
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="text-slate-500 d-flex align-items-center justify-content-md-end gap-1"
+                style="font-size: 0.65rem;">
+                <i data-lucide="info" size="12"></i>
+                Real-time data from IDX via Yahoo & FMP
             </div>
         </div>
     </div>
 </div>
 
+<?= view('partials/universal_chart', [
+    'symbol' => $stock['code'],
+    'chart_title' => 'Price Performance: ' . $stock['code']
+]) ?>
+
 <div class="row g-4">
     <div class="col-lg-5">
         <div class="detail-card p-4 mb-4">
-            <h6 class="fw-bold text-white mb-4 border-start border-info border-3 ps-3">Fundamental Stats (FMP)</h6>
-            <div class="row g-4">
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <i data-lucide="bar-chart-3" class="text-info"></i>
+                <h6 class="fw-bold text-white mb-0">Key Statistics</h6>
+            </div>
+
+            <div class="row g-3">
                 <div class="col-6">
-                    <div class="info-label">Market Cap</div>
-                    <div class="info-value text-info" style="font-size: 0.95rem;">
-                        IDR
-                        <?= isset($fundamental['marketCap']) ? number_format($fundamental['marketCap'] / 1000000000000, 2) . ' T' : 'N/A' ?>
+                    <div class="stat-item">
+                        <div class="info-label"><i data-lucide="database" size="12"></i> Market Cap</div>
+                        <div class="info-value text-info" style="font-size: 1rem;">
+                            <?= isset($stock['market_cap']) ? number_format($stock['market_cap'] / 1000000000000, 2) . ' T' : 'N/A' ?>
+                        </div>
                     </div>
                 </div>
                 <div class="col-6">
-                    <div class="info-label">Beta (Volatility)</div>
-                    <div class="info-value"><?= $fundamental['beta'] ?? 'N/A' ?></div>
-                </div>
-                <div class="col-6">
-                    <div class="info-label">Dividend</div>
-                    <div class="info-value">
-                        <?= isset($fundamental['lastDividend']) ? 'IDR ' . $fundamental['lastDividend'] : '-' ?>
+                    <div class="stat-item">
+                        <div class="info-label"><i data-lucide="zap" size="12"></i> Beta</div>
+                        <div class="info-value"><?= number_format($stock['beta'] ?? 0, 2) ?></div>
                     </div>
                 </div>
                 <div class="col-6">
-                    <div class="info-label">Employees</div>
-                    <div class="info-value">
-                        <?= isset($fundamental['fullTimeEmployees']) ? number_format($fundamental['fullTimeEmployees']) : '-' ?>
+                    <div class="stat-item">
+                        <div class="info-label"><i data-lucide="pie-chart" size="12"></i> Div. Yield</div>
+                        <div class="info-value text-success"><?= number_format($stock['dividend_yield'] ?? 0, 2) ?>%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-item">
+                        <div class="info-label"><i data-lucide="layers" size="12"></i> PBV Ratio</div>
+                        <div class="info-value"><?= number_format($stock['pbv'] ?? 0, 2) ?>x</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-item">
+                        <div class="info-label"><i data-lucide="users" size="12"></i> Employees</div>
+                        <div class="info-value">
+                            <?= isset($stock['employees']) ? number_format($stock['employees']) : '-' ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-item">
+                        <div class="info-label"><i data-lucide="clock" size="12"></i> Sync Time</div>
+                        <div class="info-value" style="font-size: 0.7rem; color: #94a3b8;">
+                            <?= date('d M H:i', strtotime($stock['price_updated_at'])) ?>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <hr class="border-secondary opacity-20 my-4">
 
-            <div class="info-label">Industry</div>
-            <div class="text-white-50 small mb-3"><?= $fundamental['industry'] ?? '-' ?></div>
-
-            <div class="info-label">Business Description</div>
-            <p class="text-secondary"
-                style="font-size: 0.75rem; text-align: justify; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;">
-                <?= $fundamental['description'] ?? 'No description available.' ?>
+            <div class="info-label"><i data-lucide="info" size="12"></i> Business Description</div>
+            <p class="text-secondary mt-2" style="font-size: 0.75rem; text-align: justify; line-height: 1.6;">
+                <?= $stock['description'] ?? 'Description not available in database.' ?>
             </p>
         </div>
+    </div>
 
-        <div class="detail-card p-4 border-info border-opacity-25">
+    <div class="col-lg-7">
+        <div class="detail-card p-4 border-info border-opacity-25 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold text-info mb-0"><i class="fa-solid fa-robot me-2"></i>AI Smart Analysis</h6>
+                <h6 class="fw-bold text-info mb-0 d-flex align-items-center gap-2">
+                    <i data-lucide="bot"></i> AI Smart Analysis
+                </h6>
                 <button onclick="triggerAI('<?= $stock['code'] ?>')"
-                    class="btn btn-sm btn-info rounded-pill px-3 shadow-sm">
-                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Update
+                    class="btn btn-sm btn-info rounded-pill px-3 shadow-sm d-flex align-items-center gap-2">
+                    <i data-lucide="sparkles" size="14"></i> Update Analysis
                 </button>
             </div>
             <div class="ai-box">
@@ -149,95 +283,31 @@
                     <?php if ($stock['ai_analysis']): ?>
                         <script>document.write(marked.parse(`<?= addslashes($stock['ai_analysis']) ?>`))</script>
                     <?php else: ?>
-                    <span class="text-muted small">Belum ada analisis. Klik tombol Update.</span>
+                    <span class="text-white small">Belum ada analisis terbaru. Klik tombol untuk analisis saham.</span>
                     <?php endif; ?>
                 </div>
             </div>
             <?php if ($stock['last_ai_update']): ?>
-            <div class="mt-3 text-end" style="font-size: 0.65rem; color: #64748b; font-style: italic;">
-                Last AI Scan: <?= date('d M Y, H:i', strtotime($stock['last_ai_update'])) ?>
+            <div class="mt-3 text-end d-flex align-items-center justify-content-end gap-1"
+                style="font-size: 0.65rem; color: #64748b;">
+                <i data-lucide="calendar" size="10"></i> Analysis Date:
+                <?= date('d M Y, H:i', strtotime($stock['last_ai_update'])) ?>
             </div>
             <?php endif; ?>
         </div>
     </div>
-
-    <div class="col-lg-7">
-        <div class="detail-card p-4 shadow-lg h-100">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h6 class="fw-bold text-white mb-0">Price Performance</h6>
-                <div class="badge bg-dark border border-secondary text-secondary px-3 py-2 rounded-pill"
-                    style="font-size: 0.7rem;">
-                    Range: <?= number_format($stock['day_low']) ?> - <?= number_format($stock['day_high']) ?>
-                </div>
-            </div>
-
-            <div style="height: 500px; position: relative;">
-                <canvas id="stockDetailChart"></canvas>
-            </div>
-        </div>
-    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('stockDetailChart').getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, 0, 450);
-    gradient.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
-    gradient.addColorStop(1, 'rgba(56, 189, 248, 0)');
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: <?= json_encode($chartData['labels']) ?>,
-            datasets: [{
-                label: 'Price',
-                data: <?= json_encode($chartData['prices']) ?>,
-                borderColor: '#38bdf8',
-                borderWidth: 3,
-                backgroundColor: gradient,
-                fill: true,
-                tension: 0.2,
-                pointRadius: 0,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { intersect: false, mode: 'index' },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#1e293b',
-                    padding: 12,
-                    cornerRadius: 12,
-                    callbacks: {
-                        label: function (context) {
-                            return ' Price: IDR ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    position: 'right',
-                    grid: { color: 'rgba(51, 65, 85, 0.3)' },
-                    ticks: { color: '#94a3b8', font: { size: 11 } }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#94a3b8', font: { size: 11 }, maxTicksLimit: 8 }
-                }
-            }
-        }
-    });
+    // Initialize Lucide
+    lucide.createIcons();
 
     async function triggerAI(code) {
         const aiBox = document.getElementById('aiContent');
         const btn = event.currentTarget;
 
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Thinking...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>AI Thinking...';
         aiBox.style.opacity = '0.4';
 
         try {
@@ -247,13 +317,13 @@
             if (data.status === 'success') {
                 aiBox.innerHTML = marked.parse(data.analysis);
                 aiBox.style.opacity = '1';
-                // Jika ingin auto-reload detail tanggal, bisa reload page atau update DOM manual
             }
         } catch (error) {
-            aiBox.innerHTML = '<span class="text-danger small">Gagal memproses AI. Periksa koneksi Ollama/Groq.</span>';
+            aiBox.innerHTML = '<span class="text-danger small">Gagal memproses AI. Pastikan server Ollama aktif.</span>';
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles me-1"></i> Update';
+            btn.innerHTML = '<i data-lucide="sparkles" class="me-1"></i> Update Analysis';
+            lucide.createIcons();
         }
     }
 </script>

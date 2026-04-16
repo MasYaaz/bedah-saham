@@ -28,15 +28,24 @@ class CreateEmitenTable extends Migration
                 'constraint' => '50',
                 'null' => true,
             ],
+            'description' => [
+                'type' => 'TEXT',
+                'null' => true,
+                'comment' => 'Profil bisnis perusahaan dari FMP'
+            ],
+            'image' => [
+                'type' => 'VARCHAR',
+                'constraint' => '255',
+                'null' => true,
+                'comment' => 'URL logo perusahaan'
+            ],
             'ai_analysis' => [
                 'type' => 'TEXT',
                 'null' => true,
-                'after' => 'sector' // Menaruh kolom setelah kolom sector agar rapi
             ],
             'last_ai_update' => [
                 'type' => 'DATETIME',
                 'null' => true,
-                'after' => 'ai_analysis'
             ],
             'created_at' => [
                 'type' => 'DATETIME',
@@ -49,7 +58,7 @@ class CreateEmitenTable extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addUniqueKey('code'); // Agar tidak ada kode saham ganda
+        $this->forge->addUniqueKey('code'); // Proteksi agar kode saham tidak double
         $this->forge->createTable('emiten');
     }
 

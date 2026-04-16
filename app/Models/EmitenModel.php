@@ -13,11 +13,27 @@ class EmitenModel extends Model
     protected $protectFields = true;
 
     // Kolom yang boleh diisi (mass assignment)
-    protected $allowedFields = ['code', 'name', 'sector', 'ai_analysis', 'last_ai_update'];
+    protected $allowedFields = [
+        'code',
+        'name',
+        'sector',
+        'description',
+        'image',
+        'ai_analysis',
+        'last_ai_update'
+    ];
 
     // Dates
     protected $useTimestamps = true;
     protected $dateFormat = 'datetime';
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
+
+    /**
+     * Opsional: Method untuk mempermudah pencarian berdasarkan kode saham
+     */
+    public function getByCode($code)
+    {
+        return $this->where('code', $code)->first();
+    }
 }
