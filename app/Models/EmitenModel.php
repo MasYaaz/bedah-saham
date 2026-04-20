@@ -19,9 +19,7 @@ class EmitenModel extends Model
         'sector',
         'notation',
         'description',
-        'image',
-        'ai_analysis',
-        'last_ai_update'
+        'image'
     ];
 
     // Dates

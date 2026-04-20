@@ -24,7 +24,6 @@ if ($day >= 1 && $day <= 5) {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    /* ... (Semua style CSS kamu tetap sama, tidak saya ubah sedikitpun) ... */
     .detail-card-header {
         background: rgba(30, 41, 59, 0.4);
         backdrop-filter: blur(12px);
@@ -316,25 +315,31 @@ if ($day >= 1 && $day <= 5) {
                 <h6 class="fw-bold text-info mb-0 d-flex align-items-center gap-2">
                     <i data-lucide="bot"></i> AI Smart Analysis
                 </h6>
-                <button onclick="triggerAI('<?= $stock['code'] ?>')"
-                    class="btn btn-sm btn-info rounded-pill px-3 shadow-sm d-flex align-items-center gap-2">
-                    <i data-lucide="sparkles" size="14"></i> Update Analysis
+                <button onclick="triggerAI('<?= $stock['code'] ?>')" id="btnAI"
+                    class="btn btn-sm btn-info rounded-pill px-3 shadow-sm d-flex align-items-center gap-2 fw-bold text-dark">
+                    <i data-lucide="sparkles" size="14"></i>
+                    <?= $last_analysis ? 'Update Analysis (1 🪙)' : 'Bedah Saham (1 🪙)' ?>
                 </button>
             </div>
             <div class="ai-box">
                 <div id="aiContent">
-                    <?php if ($stock['ai_analysis']): ?>
-                        <script>document.write(marked.parse(`<?= addslashes($stock['ai_analysis']) ?>`))</script>
+                    <?php if ($last_analysis): ?>
+                        <div class="prose prose-invert max-w-none">
+                            <script>document.write(marked.parse(`<?= addslashes($last_analysis->analysis_content) ?>`))</script>
+                    </div>
                     <?php else: ?>
-                    <span class="text-white small">Belum ada analisis terbaru. Klik tombol untuk analisis saham.</span>
+                    <div class="text-center py-5">
+                        <i data-lucide="brain-circuit" class="text-slate mb-3" size="48"></i>
+                        <p class="text-slate small mb-0">Klik tombol di atas untuk melakukan bedah saham mendalam
+                            menggunakan kecerdasan buatan.</p>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
-            <?php if ($stock['last_ai_update']): ?>
-            <div class="mt-3 text-end d-flex align-items-center justify-content-end gap-1"
-                style="font-size: 0.65rem; color: #64748b;">
-                <i data-lucide="calendar" size="10"></i> Analysis Date:
-                <?= date('d M Y, H:i', strtotime($stock['last_ai_update'])) ?>
+            <?php if ($last_analysis): ?>
+            <div id="lastUpdate" class="text-slate small" style="font-size: 0.65rem;">
+                <i data-lucide="calendar" size="10"></i> Tanggal Analisis:
+                <?= date('d M Y, H:i', strtotime($last_analysis->created_at)) ?>
             </div>
             <?php endif; ?>
         </div>
@@ -350,7 +355,7 @@ if ($day >= 1 && $day <= 5) {
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>AI Thinking...';
         aiBox.style.opacity = '0.4';
         try {
-            const response = await fetch(`<?= base_url('stock/analyze-ai') ?>/${code}`);
+            const response = await fetch(`<?= base_url('api/analyze-ai') ?>/${code}`);
             const data = await response.json();
             if (data.status === 'success') {
                 aiBox.innerHTML = marked.parse(data.analysis);

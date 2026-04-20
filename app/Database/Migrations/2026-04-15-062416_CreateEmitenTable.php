@@ -44,14 +44,6 @@ class CreateEmitenTable extends Migration
                 'null' => true,
                 'comment' => 'URL logo perusahaan'
             ],
-            'ai_analysis' => [
-                'type' => 'TEXT',
-                'null' => true,
-            ],
-            'last_ai_update' => [
-                'type' => 'DATETIME',
-                'null' => true,
-            ],
             'created_at' => [
                 'type' => 'DATETIME',
                 'null' => true,

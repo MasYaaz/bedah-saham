@@ -6,6 +6,7 @@ use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use App\Models\UserModel;
 
 /**
  * BaseController provides a convenient place for loading components
@@ -39,6 +40,22 @@ abstract class BaseController extends Controller
         // Caution: Do not edit this line.
         parent::initController($request, $response, $logger);
 
+        // --- LOGIKA UPDATE SESSION OTOMATIS ---
+        if (session()->get('is_logged')) {
+            $userModel = new UserModel();
+            $user = $userModel->find(session()->get('user_id'));
+
+            if ($user) {
+                // Update nilai token di session dengan data terbaru dari DB
+                session()->set('token_balance', $user->token_balance);
+
+                // Kamu juga bisa update data lain jika perlu (misal: username)
+                session()->set('username', $user->username);
+            } else {
+                // Jika user tidak ditemukan di DB (misal dihapus admin), paksa logout
+                session()->destroy();
+            }
+        }
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
     }
