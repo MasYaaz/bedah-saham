@@ -28,5 +28,9 @@ COPY . /var/www/html/
 # 6. Set permission untuk folder writable agar CI4 bisa nulis log/cache
 RUN chown -R www-data:www-data /var/www/html/writable && chmod -R 775 /var/www/html/writable
 
+# 7. Railway menggunakan port dinamis, pastikan Apache mendengarkan port yang benar
+# Kita biarkan Apache tetap di port 80, Railway akan melakukan mapping otomatis
+EXPOSE 80
+
 # Jalankan Apache di foreground
 CMD ["apache2-foreground"]
