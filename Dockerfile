@@ -36,8 +36,17 @@ COPY . .
 RUN chown -R www-data:www-data /var/www/html/writable \
     && chmod -R 775 /var/www/html/writable
 
-# 9. Script starter
+# 9. Script starter dengan Migrasi dan Stock Sync otomatis
 RUN echo "#!/bin/sh" > /start.sh && \
+    # Menjalankan migrasi database
+    echo "echo 'Running migrations...'" >> /start.sh && \
+    echo "php spark migrate --all || echo 'Migration failed or already up to date'" >> /start.sh && \
+    \
+    # Menjalankan sinkronisasi stok (Stock Sync)
+    echo "echo 'Syncing stock data...'" >> /start.sh && \
+    echo "php spark stock:sync || echo 'Stock sync failed'" >> /start.sh && \
+    \
+    # Menjalankan PHP-FPM dan Nginx
     echo "php-fpm -D" >> /start.sh && \
     echo "nginx -g 'daemon off;'" >> /start.sh && \
     chmod +x /start.sh
