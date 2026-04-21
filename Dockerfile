@@ -1,6 +1,6 @@
 FROM php:8.2-fpm-alpine
 
-# 1. Install dependensi sistem dan ekstensi PHP
+# 1. Install dependensi sistem
 RUN apk add --no-cache \
     nginx \
     libpng-dev \
@@ -8,23 +8,35 @@ RUN apk add --no-cache \
     zip \
     unzip \
     icu-dev \
-    oniguruma-dev
+    oniguruma-dev \
+    curl
 
+# 2. Install ekstensi PHP
 RUN docker-php-ext-configure intl \
     && docker-php-ext-install intl gd zip mysqli pdo_mysql mbstring
 
-# 2. Setup folder kerja
+# 3. KUNCI PERBAIKAN: Install Composer secara resmi
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 WORKDIR /var/www/html
 
-# 3. Copy file konfigurasi Nginx
+# 4. Copy file konfigurasi Nginx
 COPY nginx.conf /etc/nginx/http.d/default.conf
 
-# 4. Copy project & Atur Permission
+# 5. Copy file composer dahulu (untuk optimasi cache)
+COPY composer.json composer.lock ./
+
+# 6. Jalankan instalasi vendor (tanpa script dev untuk hemat ruang)
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# 7. Copy seluruh project
 COPY . .
+
+# 8. Atur Permission
 RUN chown -R www-data:www-data /var/www/html/writable \
     && chmod -R 775 /var/www/html/writable
 
-# 5. Buat script starter (agar PHP-FPM dan Nginx jalan bareng)
+# 9. Script starter
 RUN echo "#!/bin/sh" > /start.sh && \
     echo "php-fpm -D" >> /start.sh && \
     echo "nginx -g 'daemon off;'" >> /start.sh && \
@@ -32,5 +44,4 @@ RUN echo "#!/bin/sh" > /start.sh && \
 
 EXPOSE 80
 
-# Jalankan script starter
 CMD ["/start.sh"]
