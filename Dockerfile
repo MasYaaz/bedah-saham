@@ -1,35 +1,36 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm-alpine
 
-# 1. Install ekstensi
-RUN apt-get update && apt-get install -y \
-    libicu-dev \
+# 1. Install dependensi sistem dan ekstensi PHP
+RUN apk add --no-cache \
+    nginx \
     libpng-dev \
     libzip-dev \
     zip \
     unzip \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install intl gd zip mysqli pdo_mysql
+    icu-dev \
+    oniguruma-dev
 
-# 2. BERSIHKAN & PAKSA: Hapus semua file mod-enabled MPM 
-# dan pastikan tidak ada yang ter-load otomatis
-RUN find /etc/apache2/mods-enabled -name "mpm_*" -delete
+RUN docker-php-ext-configure intl \
+    && docker-php-ext-install intl gd zip mysqli pdo_mysql mbstring
 
-# 3. Masukkan file fix kita ke Apache
-COPY mpm_fix.conf /etc/apache2/conf-available/mpm_fix.conf
-RUN a2enconf mpm_fix
+# 2. Setup folder kerja
+WORKDIR /var/www/html
 
-# 4. Aktifkan mod_rewrite
-RUN a2enmod rewrite
+# 3. Copy file konfigurasi Nginx
+COPY nginx.conf /etc/nginx/http.d/default.conf
 
-# 5. Set Document Root (tetap sama)
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# 4. Copy project & Atur Permission
+COPY . .
+RUN chown -R www-data:www-data /var/www/html/writable \
+    && chmod -R 775 /var/www/html/writable
 
-# 6. Copy project & Permissions
-COPY . /var/www/html/
-RUN chown -R www-data:www-data /var/www/html/writable && chmod -R 775 /var/www/html/writable
+# 5. Buat script starter (agar PHP-FPM dan Nginx jalan bareng)
+RUN echo "#!/bin/sh" > /start.sh && \
+    echo "php-fpm -D" >> /start.sh && \
+    echo "nginx -g 'daemon off;'" >> /start.sh && \
+    chmod +x /start.sh
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+# Jalankan script starter
+CMD ["/start.sh"]
