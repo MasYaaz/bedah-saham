@@ -2,138 +2,78 @@
 <?= $this->section('content') ?>
 
 <?php
-// Logika Market Status (Sebaiknya dipindah ke Controller/Helper nanti)
 date_default_timezone_set('Asia/Jakarta');
 $now = new DateTime();
-$day = (int) $now->format('N'); // 1 (Senin) - 7 (Minggu)
+$day = (int) $now->format('N');
 $time = $now->format('H:i');
 
 $is_open = false;
 if ($day >= 1 && $day <= 5) {
     $is_friday = ($day == 5);
     $session1_end = $is_friday ? '11:30' : '12:00';
-
     $in_session1 = ($time >= '09:00' && $time <= $session1_end);
     $in_session2 = ($time >= '13:30' && $time <= '16:00');
-
     if ($in_session1 || $in_session2)
         $is_open = true;
 }
 ?>
 
-<style>
-    .index-header-card {
-        background: rgba(30, 41, 59, 0.4);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        transition: transform 0.3s ease;
-    }
+<div
+    class="relative overflow-hidden bg-slate-800/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 mb-6 shadow-2xl transition-transform duration-300">
+    <div class="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
 
-    .market-status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 6px 16px;
-        border-radius: 100px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-    }
-
-    .status-open {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.2);
-    }
-
-    .status-closed {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-
-    .pulse-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: currentColor;
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0% {
-            transform: scale(0.9);
-            opacity: 1;
-        }
-
-        50% {
-            transform: scale(1.4);
-            opacity: 0.5;
-        }
-
-        100% {
-            transform: scale(0.9);
-            opacity: 1;
-        }
-    }
-</style>
-
-<div class="index-header-card p-4 mb-4 shadow-sm">
-    <div class="row align-items-center">
-        <div class="col-md-7">
-            <div class="d-flex align-items-center gap-3">
-                <div class="bg-info bg-opacity-10 p-3 rounded-4 border border-info border-opacity-20 text-info">
-                    <i data-lucide="layout-dashboard" size="28"></i>
-                </div>
-                <div>
-                    <h1 class="h4 fw-bold text-white mb-0">Market Overview</h1>
-                    <p class="text-secondary small mb-0">Monitoring Indonesia Stock Exchange Real-time</p>
-                </div>
+        <div class="md:col-span-7 flex items-center gap-4">
+            <div class="bg-sky-500/10 p-4 rounded-2xl border border-sky-500/20 text-sky-400">
+                <i data-lucide="layout-dashboard" class="w-7 h-7"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-white mb-0">Market Overview</h1>
+                <p class="text-slate-400 text-sm mb-0">Monitoring Indonesia Stock Exchange Real-time</p>
             </div>
         </div>
 
-        <div class="col-md-5 text-md-end mt-3 mt-md-0">
-            <div class="d-flex flex-column align-items-md-end gap-2">
-                <?php if ($is_open): ?>
-                    <div class="market-status-badge status-open">
-                        <span class="pulse-dot"></span>
-                        MARKET OPEN
-                    </div>
-                <?php else: ?>
-                    <div class="market-status-badge status-closed">
-                        <i data-lucide="lock" size="14"></i>
-                        MARKET CLOSED
-                    </div>
-                <?php endif; ?>
-
-                <div class="text-secondary d-flex align-items-center gap-2" style="font-size: 0.7rem;">
-                    <i data-lucide="clock" size="12"></i>
-                    <span>Last Sync: <strong><?= date('H:i:s') ?> WIB</strong></span>
+        <div class="md:col-span-5 flex flex-col items-start md:items-end gap-2 mt-4 md:mt-0">
+            <?php if ($is_open): ?>
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold tracking-wider">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    MARKET OPEN
                 </div>
+            <?php else: ?>
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold tracking-wider">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                    MARKET CLOSED
+                </div>
+            <?php endif; ?>
+
+            <div class="flex items-center gap-2 text-slate-500 text-[11px] uppercase tracking-tight">
+                <i data-lucide="clock" class="w-3 h-3"></i>
+                <span>Last Sync: <strong class="text-slate-300"><?= date('H:i:s') ?> WIB</strong></span>
             </div>
         </div>
     </div>
 </div>
 
-<div class="mb-5">
+<div class="mb-10">
     <?= view('partials/universal_chart', [
         'symbol' => 'IHSG',
         'chart_title' => 'Indonesia Composite Index (JKSE)'
     ]) ?>
 </div>
 
-<div class="mb-4">
+<div class="mb-8 max-w-7xl px-4">
     <?= $this->include('partials/index_table') ?>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Init Icons
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
-        // Data Syncing
         const syncMarketData = async () => {
             try {
                 const response = await fetch('<?= base_url('stock/get_live_data') ?>');

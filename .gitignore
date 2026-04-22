@@ -122,5 +122,8 @@ _modules/*
 # Visual Studio Code
 .vscode/
 
+# Node Modules
+node_modules/
+
 /results/
 /phpunit*.xml

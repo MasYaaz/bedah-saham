@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Models\EmitenModel;
 use App\Models\StockDataModel;
 use App\Models\StockHistoryModel;
 use App\Models\StockAnalysisModel; // Tambahkan ini

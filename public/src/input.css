@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-bg-dark: #0f172a;
+  --color-card-dark: #1e293b;
+  --color-accent-info: #38bdf8;
+  --color-text-slate: #94a3b8;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-dark text-slate-100 font-['Inter'] antialiased flex flex-col min-h-screen pt-20;
+    background-image: radial-gradient(
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 0
+    );
+    background-size: 24px 24px;
+  }
+}
+
+.navbar-blur {
+  @apply bg-slate-900/60 backdrop-blur-xl border-b border-white/10;
+}
+
+.nav-link-hover {
+  @apply text-text-slate hover:text-accent-info transition-colors duration-200;
+}

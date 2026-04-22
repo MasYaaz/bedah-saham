@@ -1,148 +1,53 @@
-<style>
-    /* 1. Chart & Container Styles */
-    .chart-container {
-        position: relative;
-        background: linear-gradient(145deg, #1e293b, #111827);
-        border: 1px solid #334155;
-        border-radius: 24px;
-        padding: 2rem;
-    }
-
-    /* 2. Group Button Wrapper */
-    .range-selector-wrapper {
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 4px;
-        display: inline-flex;
-        gap: 4px;
-    }
-
-    /* 3. Base Button Styles */
-    .btn-time-range,
-    .btn-indicator-toggle {
-        border: none !important;
-        font-size: 0.75rem;
-        font-weight: 700;
-        transition: all 0.2s ease-in-out;
-    }
-
-    .btn-time-range {
-        color: #94a3b8;
-        padding: 6px 16px;
-        background: transparent;
-    }
-
-    .btn-time-range:hover {
-        color: #f8fafc;
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .btn-time-range.active {
-        background: #38bdf8 !important;
-        color: #0f172a !important;
-        box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
-    }
-
-    /* 4. Indicator Toggle Specific Style */
-    .btn-indicator-toggle {
-        background: rgba(30, 41, 59, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        color: #94a3b8;
-        padding: 0;
-        /* Padding nol agar width/height konsisten */
-        transition: all 0.3s ease;
-        flex-shrink: 0;
-        /* Mencegah tombol gepeng */
-    }
-
-    .btn-indicator-toggle:hover {
-        background: rgba(56, 189, 248, 0.1);
-        color: #38bdf8;
-        border-color: rgba(56, 189, 248, 0.4) !important;
-        transform: translateY(-1px);
-    }
-
-    .btn-indicator-toggle.active-mode {
-        background: #38bdf8 !important;
-        color: #0f172a !important;
-        border-color: #38bdf8 !important;
-        box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-    }
-
-    /* 5. Stats & Loading */
-    .stat-label {
-        font-size: 0.75rem;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .stat-value {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #f8fafc;
-    }
-
-    .loading-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(30, 41, 59, 0.7);
-        backdrop-filter: blur(4px);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 20;
-        border-radius: 24px;
-    }
-</style>
-
-<div class="row g-4 mb-4 align-items-end">
-    <div class="col-md-5">
-        <div class="stat-label mb-1">
-            <i data-lucide="<?= $symbol === 'IHSG' ? 'globe' : 'line-chart' ?>" size="14"></i>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6 items-end">
+    <div class="md:col-span-5 flex flex-col gap-1">
+        <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+            <i data-lucide="<?= $symbol === 'IHSG' ? 'globe' : 'line-chart' ?>" class="w-3.5 h-3.5 text-sky-400"></i>
             <?= $chart_title ?>
         </div>
-        <div class="d-flex align-items-baseline gap-3">
-            <div class="stat-value" id="livePrice">--</div>
-            <div id="liveChange" class="fw-bold" style="font-size: 1rem;">
+        <div class="flex items-baseline gap-4 mt-1">
+            <div class="text-4xl font-black text-white tracking-tighter" id="livePrice">--</div>
+            <div id="liveChange"
+                class="flex items-center gap-1.5 text-sm font-bold bg-slate-800/50 px-3 py-1 rounded-full border border-white/5">
                 <span id="changeIcon"></span>
                 <span id="changeValue">0.00%</span>
             </div>
         </div>
     </div>
 
-    <div class="col-md-7 d-flex flex-wrap justify-content-md-end align-items-center gap-3">
-        <div class="range-selector-wrapper rounded-pill shadow-sm">
+    <div class="md:col-span-7 flex flex-wrap justify-start md:justify-end items-center gap-3">
+        <div class="inline-flex bg-slate-900/80 p-1 rounded-2xl border border-white/10 shadow-inner">
             <?php
             $ranges = ['1d' => 'NOW', '1w' => '1W', '1m' => '1M', '6m' => '6M', '1y' => '1Y'];
             foreach ($ranges as $val => $label): ?>
                 <button type="button"
-                    class="btn btn-time-range rounded-pill btn-range-selector <?= ($val === '1d') ? 'active' : '' ?>"
+                    class="btn-range-selector px-4 py-1.5 rounded-xl text-[10px] font-black transition-all duration-200 cursor-pointer <?= ($val === '1d') ? 'bg-sky-400 text-slate-950 shadow-lg shadow-sky-400/20' : 'text-slate-500 hover:text-white' ?>"
                     onclick="updateUniversalChart('<?= $val ?>', '<?= $label ?>')">
                     <?= $label ?>
                 </button>
             <?php endforeach; ?>
         </div>
 
-        <button type="button"
-            class="btn btn-indicator-toggle rounded-circle d-flex align-items-center justify-content-center"
-            style="width: 40px; height: 40px;" onclick="toggleTechnicalIndicators()" title="Toggle Indicators">
-            <i data-lucide="layers" size="18"></i>
+        <button type="button" onclick="toggleTechnicalIndicators()"
+            class="btn-indicator-toggle w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800/50 border border-white/10 text-slate-400 hover:text-sky-400 hover:border-sky-400/40 hover:bg-sky-400/10 transition-all duration-300 shadow-sm active:scale-90"
+            title="Toggle Indicators">
+            <i data-lucide="layers" class="w-5 h-5"></i>
         </button>
     </div>
 </div>
 
-<div class="chart-container shadow-2xl mb-5">
-    <div id="chartLoader" class="loading-overlay">
-        <div class="spinner-border text-info" role="status"></div>
+<div
+    class="relative bg-linear-to-br from-slate-800/40 to-slate-950/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 shadow-2xl group">
+    <div id="chartLoader"
+        class="absolute inset-0 bg-slate-900/70 backdrop-blur-md hidden items-center justify-center z-20 rounded-[32px] transition-all">
+        <div class="flex flex-col items-center gap-3">
+            <div class="w-10 h-10 border-4 border-sky-400/20 border-t-sky-400 rounded-full animate-spin"></div>
+            <span class="text-[10px] font-black text-sky-400 uppercase tracking-widest">Fetching Data</span>
+        </div>
     </div>
-    <canvas id="universalCanvas" style="height: 450px;"></canvas>
+
+    <div class="h-112.5 w-full">
+        <canvas id="universalCanvas"></canvas>
+    </div>
 </div>
 
 <script>
@@ -288,7 +193,13 @@
 
         // Toggle class warna saja
         const btn = document.querySelector('.btn-indicator-toggle');
-        btn.classList.toggle('active-mode', showIndicators);
+        if (showIndicators) {
+            btn.classList.add('bg-sky-400', 'text-slate-950', 'border-sky-400', 'shadow-lg', 'shadow-sky-400/30');
+            btn.classList.remove('bg-slate-800/50', 'text-slate-400', 'border-white/10');
+        } else {
+            btn.classList.remove('bg-sky-400', 'text-slate-950', 'border-sky-400', 'shadow-lg', 'shadow-sky-400/30');
+            btn.classList.add('bg-slate-800/50', 'text-slate-400', 'border-white/10');
+        }
 
         // Update visibilitas dataset
         [1, 2, 3].forEach(index => {
@@ -304,7 +215,13 @@
 
         const activeLabel = label || (range.toUpperCase() === '1D' ? 'NOW' : range.toUpperCase());
         document.querySelectorAll('.btn-range-selector').forEach(btn => {
-            btn.classList.toggle('active', btn.innerText.trim() === activeLabel);
+            if (btn.innerText.trim() === activeLabel) {
+                btn.classList.add('bg-sky-400', 'text-slate-950', 'shadow-lg', 'shadow-sky-400/20');
+                btn.classList.remove('text-slate-500', 'hover:text-white');
+            } else {
+                btn.classList.remove('bg-sky-400', 'text-slate-950', 'shadow-lg', 'shadow-sky-400/20');
+                btn.classList.add('text-slate-500', 'hover:text-white');
+            }
         });
 
         try {
@@ -352,14 +269,14 @@
                     document.getElementById('changeValue').title = `RSI: ${currentRSI.toFixed(2)} (${status})`;
                 }
 
-                // 4. WARNA DINAMIS (Berdasarkan tren harga yang ditampilkan)
+                // Update Warna Berdasarkan Data (Tailwind Color Hex)
                 const isUp = data.change_raw >= 0;
-                const themeColor = isUp ? '#10b981' : '#ef4444';
+                const themeColor = isUp ? '#10b981' : '#f43f5e'; // Emerald vs Rose
                 universalChartInstance.data.datasets[0].borderColor = themeColor;
 
                 const ctx = document.getElementById('universalCanvas').getContext('2d');
                 const newGradient = ctx.createLinearGradient(0, 0, 0, 400);
-                newGradient.addColorStop(0, isUp ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)');
+                newGradient.addColorStop(0, isUp ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)');
                 newGradient.addColorStop(1, 'rgba(0,0,0,0)');
                 universalChartInstance.data.datasets[0].backgroundColor = newGradient;
 
@@ -372,15 +289,15 @@
                 const liveChange = document.getElementById('liveChange');
 
                 if (data.change_raw > 0) {
-                    liveChange.className = "text-success fw-bold";
+                    liveChange.className = "flex items-center gap-1.5 text-sm font-bold bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20";
                     changeIcon.innerHTML = '<i data-lucide="trending-up" size="16"></i>';
                     changeValue.innerText = `+${data.change_pct}%`;
                 } else if (data.change_raw < 0) {
-                    liveChange.className = "text-danger fw-bold";
+                    liveChange.className = "flex items-center gap-1.5 text-sm font-bold bg-rose-500/10 text-rose-400 px-3 py-1 rounded-full border border-rose-500/20";
                     changeIcon.innerHTML = '<i data-lucide="trending-down" size="16"></i>';
                     changeValue.innerText = `${data.change_pct}%`;
                 } else {
-                    liveChange.className = "text-secondary fw-bold";
+                    liveChange.className = "flex items-center gap-1.5 text-sm font-bold bg-slate-500/10 text-slate-400 px-3 py-1 rounded-full border border-slate-500/20";
                     changeIcon.innerHTML = '<i data-lucide="minus" size="16"></i>';
                     changeValue.innerText = `0.00%`;
                 }

@@ -23,337 +23,193 @@ if ($day >= 1 && $day <= 5) {
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
-    .detail-card-header {
-        background: rgba(30, 41, 59, 0.4);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 28px;
-        position: relative;
-        overflow: hidden;
-    }
+<div class="max-w-7xl mx-auto p-4 space-y-6">
 
-    .detail-card-header::after {
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.03), transparent 50%);
-        pointer-events: none;
-    }
-
-    .market-status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 12px;
-        border-radius: 100px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-
-    .status-open {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.2);
-    }
-
-    .status-closed {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-
-    .pulse-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background-color: currentColor;
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0% {
-            transform: scale(0.95);
-            opacity: 1;
-        }
-
-        50% {
-            transform: scale(1.5);
-            opacity: 0.5;
-        }
-
-        100% {
-            transform: scale(0.95);
-            opacity: 1;
-        }
-    }
-
-    .info-label {
-        font-size: 0.65rem;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 4px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .info-value {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #f8fafc;
-    }
-
-    .badge-sector {
-        background: rgba(56, 189, 248, 0.1);
-        color: #38bdf8;
-        border: 1px solid rgba(56, 189, 248, 0.2);
-        padding: 0.4rem 0.8rem;
-        border-radius: 8px;
-        font-size: 0.75rem;
-    }
-
-    .ai-box {
-        background: rgba(15, 23, 42, 0.5);
-        border-radius: 16px;
-        padding: 1.5rem;
-        border: 1px solid rgba(56, 189, 248, 0.1);
-    }
-
-    #aiContent {
-        color: #cbd5e1;
-        font-size: 0.85rem;
-        line-height: 1.7;
-    }
-
-    .company-img {
-        width: 56px;
-        height: 56px;
-        border-radius: 14px;
-        object-fit: contain;
-        background: white;
-        padding: 6px;
-        border: 2px solid #334155;
-    }
-
-    .stat-item {
-        padding: 12px;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    /* Penambahan style tabel history agar match dengan tema */
-    .history-table {
-        font-size: 0.7rem;
-        color: #cbd5e1;
-    }
-
-    .history-table th {
-        color: #64748b;
-        font-weight: 600;
-        text-transform: uppercase;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 8px;
-    }
-
-    .history-table td {
-        padding: 8px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-    }
-</style>
-
-<div class="detail-card-header p-4 mb-4 shadow-2xl">
-    <div class="row align-items-center">
-        <div class="col-md-7 d-flex align-items-center gap-3">
-            <div class="position-relative">
-                <?php if ($stock['image']): ?>
-                    <img src="<?= $stock['image'] ?>" class="company-img shadow-sm" alt="logo">
-                <?php else: ?>
-                    <div
-                        class="company-img d-flex align-items-center justify-content-center bg-dark text-slate-500 border border-slate-700">
-                        <i data-lucide="building-2" size="24"></i>
-                    </div>
-                <?php endif; ?>
-            </div>
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <h1 class="h3 fw-bold text-white mb-0" style="letter-spacing: -0.5px;"><?= $stock['code'] ?></h1>
-                    <span class="badge-sector"><?= $stock['sector'] ?></span>
-                </div>
-                <h5 class="text-slate-400 small fw-medium mb-0 opacity-80"><?= $stock['name'] ?></h5>
-            </div>
+    <div
+        class="relative overflow-hidden bg-slate-800/40 backdrop-blur-xl border border-white/10 rounded-[28px] p-6 shadow-2xl">
+        <div
+            class="absolute -inset-full bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.05),transparent_50%)] pointer-events-none">
         </div>
-        <div class="col-md-5 text-md-end mt-3 mt-md-0">
-            <div class="mb-2">
-                <?php if ($is_open): ?>
-                    <div class="market-status-badge status-open"><span class="pulse-dot"></span> Market Open </div>
-                <?php else: ?>
-                    <div class="market-status-badge status-closed"><i data-lucide="lock" size="10"></i> Market Closed </div>
-                <?php endif; ?>
-            </div>
-            <div class="text-slate-500 d-flex align-items-center justify-content-md-end gap-1"
-                style="font-size: 0.65rem;">
-                <i data-lucide="info" size="12"></i> Real-time data from IDX via Yahoo & FMP
-            </div>
-        </div>
-    </div>
-</div>
 
-<?= view('partials/universal_chart', [
-    'symbol' => $stock['code'],
-    'chart_title' => 'Price Performance: ' . $stock['code']
-]) ?>
-
-<div class="row g-4">
-    <div class="col-lg-5">
-        <div class="detail-card p-4 mb-4">
-            <div class="d-flex align-items-center gap-2 mb-4">
-                <i data-lucide="bar-chart-3" class="text-info"></i>
-                <h6 class="fw-bold text-white mb-0">Key Statistics</h6>
-            </div>
-
-            <div class="row g-3">
-                <div class="col-6">
-                    <div class="stat-item">
-                        <div class="info-label"><i data-lucide="database" size="12"></i> Market Cap</div>
-                        <div class="info-value text-info" style="font-size: 1rem;">
-                            <?= isset($stock['market_cap']) ? number_format($stock['market_cap'] / 1000000000000, 2) . ' T' : 'N/A' ?>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="stat-item">
-                        <div class="info-label"><i data-lucide="trending-up" size="12"></i> PER Ratio</div>
-                        <div class="info-value"><?= number_format($stock['per'] ?? 0, 2) ?>x</div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="stat-item">
-                        <div class="info-label"><i data-lucide="layers" size="12"></i> PBV Ratio</div>
-                        <div class="info-value"><?= number_format($stock['pbv'] ?? 0, 2) ?>x</div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="stat-item">
-                        <div class="info-label"><i data-lucide="activity" size="12"></i> ROE</div>
-                        <div class="info-value text-success"><?= number_format($stock['roe'] ?? 0, 2) ?>%</div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="stat-item">
-                        <div class="info-label"><i data-lucide="shield-alert" size="12"></i> DER</div>
-                        <div class="info-value"><?= number_format($stock['der'] ?? 0, 2) ?>x</div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="stat-item">
-                        <div class="info-label"><i data-lucide="banknote" size="12"></i> Dividend</div>
-                        <div class="info-value">Rp <?= number_format($stock['dividend'] ?? 0, 0, ',', '.') ?></div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="stat-item">
-                        <div class="info-label"><i data-lucide="pie-chart" size="12"></i> Div. Yield</div>
-                        <div class="info-value text-success"><?= number_format($stock['dividend_yield'] ?? 0, 2) ?>%
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="stat-item">
-                        <div class="info-label"><i data-lucide="zap" size="12"></i> Beta</div>
-                        <div class="info-value"><?= number_format($stock['beta'] ?? 0, 2) ?></div>
-                    </div>
-                </div>
-            </div>
-
-            <hr class="border-secondary opacity-20 my-4">
-
-            <div class="info-label"><i data-lucide="info" size="12"></i> Business Description</div>
-            <p class="text-secondary mt-2 mb-4" style="font-size: 0.75rem; text-align: justify; line-height: 1.6;">
-                <?= $stock['description'] ?? 'Description not available in database.' ?>
-            </p>
-
-            <?php if (!empty($histories)): ?>
-                <div class="info-label"><i data-lucide="history" size="12"></i> Historical Performance (FY)</div>
-                <div class="table-responsive">
-                    <table class="w-100 history-table">
-                        <thead>
-                            <tr>
-                                <th class="text-start">Year</th>
-                                <th class="text-end">Revenue</th>
-                                <th class="text-end">Net Profit</th>
-                                <th class="text-end">ROE</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($histories as $h): ?>
-                                <tr>
-                                    <td class="text-start fw-bold"><?= $h['year'] ?></td>
-                                    <td class="text-end"><?= $h['revenue'] ?></td>
-                                    <td class="text-end"><?= $h['net_profit'] ?></td>
-                                    <td class="text-end"><?= number_format($h['roe'], 1) ?>%</td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <div class="col-lg-7">
-        <div class="detail-card p-4 border-info border-opacity-25 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold text-info mb-0 d-flex align-items-center gap-2">
-                    <i data-lucide="bot"></i> AI Smart Analysis
-                </h6>
-                <button onclick="triggerAI('<?= $stock['code'] ?>')" id="btnAI"
-                    class="btn btn-sm btn-info rounded-pill px-3 shadow-sm d-flex align-items-center gap-2 fw-bold text-dark">
-                    <i data-lucide="sparkles" size="14"></i>
-                    <?= $last_analysis ? 'Update Analysis (1 🪙)' : 'Bedah Saham (1 🪙)' ?>
-                </button>
-            </div>
-            <div class="ai-box">
-                <div id="aiContent">
-                    <?php if ($last_analysis): ?>
-                        <div class="prose prose-invert max-w-none">
-                            <script>document.write(marked.parse(`<?= addslashes($last_analysis->analysis_content) ?>`))</script>
-                    </div>
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <?php if ($stock['image']): ?>
+                        <img src="<?= $stock['image'] ?>"
+                            class="w-14 h-14 rounded-xl object-contain bg-white p-1.5 border-2 border-slate-700 shadow-sm"
+                            alt="logo">
                     <?php else: ?>
-                    <div class="text-center py-5">
-                        <i data-lucide="brain-circuit" class="text-slate mb-3" size="48"></i>
-                        <p class="text-slate small mb-0">Klik tombol di atas untuk melakukan bedah saham mendalam
-                            menggunakan kecerdasan buatan.</p>
-                    </div>
+                        <div
+                            class="w-14 h-14 rounded-xl flex items-center justify-center bg-slate-900 text-slate-500 border border-slate-700">
+                            <i data-lucide="building-2" class="w-6 h-6"></i>
+                        </div>
                     <?php endif; ?>
                 </div>
+
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <h1 class="text-3xl font-bold text-white tracking-tight"><?= $stock['code'] ?></h1>
+                        <span
+                            class="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-sky-400 bg-sky-400/10 border border-sky-400/20 rounded-lg">
+                            <?= $stock['sector'] ?>
+                        </span>
+                    </div>
+                    <h5 class="text-slate-400 font-medium opacity-80"><?= $stock['name'] ?></h5>
+                </div>
             </div>
-            <?php if ($last_analysis): ?>
-            <div id="lastUpdate" class="text-slate small" style="font-size: 0.65rem;">
-                <i data-lucide="calendar" size="10"></i> Tanggal Analisis:
-                <?= date('d M Y, H:i', strtotime($last_analysis->created_at)) ?>
+
+            <div class="flex flex-col md:items-end gap-2">
+                <?php if ($is_open): ?>
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>
+                        Market Open
+                    </div>
+                <?php else: ?>
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20">
+                        <i data-lucide="lock" class="w-3 h-3"></i>
+                        Market Closed
+                    </div>
+                <?php endif; ?>
+                <div class="flex items-center gap-1.5 text-[10px] text-slate-500 italic">
+                    <i data-lucide="info" class="w-3 h-3"></i> Real-time data from IDX via Yahoo & FMP
+                </div>
             </div>
-            <?php endif; ?>
+        </div>
+    </div>
+
+    <div class="bg-slate-900/50 rounded-3xl border border-white/5 p-1">
+        <?= view('partials/universal_chart', [
+            'symbol' => $stock['code'],
+            'chart_title' => 'Price Performance: ' . $stock['code']
+        ]) ?>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <div class="lg:col-span-5 space-y-6">
+            <div class="bg-slate-800/30 border border-white/5 rounded-3xl p-6 shadow-xl">
+                <div class="flex items-center gap-2 mb-6">
+                    <i data-lucide="bar-chart-3" class="text-sky-400 w-5 h-5"></i>
+                    <h6 class="font-bold text-white uppercase tracking-wider text-sm">Key Statistics</h6>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <?php
+                    $stats = [
+                        ['label' => 'Market Cap', 'val' => (isset($stock['market_cap']) ? number_format($stock['market_cap'] / 1e12, 2) . ' T' : 'N/A'), 'icon' => 'database', 'color' => 'text-sky-400'],
+                        ['label' => 'PER Ratio', 'val' => number_format($stock['per'] ?? 0, 2) . 'x', 'icon' => 'trending-up', 'color' => 'text-white'],
+                        ['label' => 'PBV Ratio', 'val' => number_format($stock['pbv'] ?? 0, 2) . 'x', 'icon' => 'layers', 'color' => 'text-white'],
+                        ['label' => 'ROE', 'val' => number_format($stock['roe'] ?? 0, 2) . '%', 'icon' => 'activity', 'color' => 'text-emerald-400'],
+                        ['label' => 'DER', 'val' => number_format($stock['der'] ?? 0, 2) . 'x', 'icon' => 'shield-alert', 'color' => 'text-white'],
+                        ['label' => 'Dividend', 'val' => 'Rp ' . number_format($stock['dividend'] ?? 0, 0, ',', '.'), 'icon' => 'banknote', 'color' => 'text-white'],
+                        ['label' => 'Div. Yield', 'val' => number_format($stock['dividend_yield'] ?? 0, 2) . '%', 'icon' => 'pie-chart', 'color' => 'text-emerald-400'],
+                        ['label' => 'Beta', 'val' => number_format($stock['beta'] ?? 0, 2), 'icon' => 'zap', 'color' => 'text-white'],
+                    ];
+                    foreach ($stats as $s): ?>
+                        <div class="p-3 rounded-2xl bg-white/2 border border-white/5">
+                            <div class="flex items-center gap-1.5 text-[9px] text-slate-500 uppercase tracking-widest mb-1">
+                                <i data-lucide="<?= $s['icon'] ?>" class="w-3 h-3"></i> <?= $s['label'] ?>
+                            </div>
+                            <div class="text-base font-bold <?= $s['color'] ?> tracking-tight"><?= $s['val'] ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <hr class="border-white/5 my-6">
+
+                <div class="space-y-3">
+                    <div class="flex items-center gap-1.5 text-[9px] text-slate-500 uppercase tracking-widest">
+                        <i data-lucide="info" class="w-3 h-3"></i> Business Description
+                    </div>
+                    <p class="text-slate-400 text-xs leading-relaxed text-justify">
+                        <?= $stock['description'] ?? 'Description not available in database.' ?>
+                    </p>
+                </div>
+
+                <?php if (!empty($histories)): ?>
+                    <div class="mt-8 space-y-4">
+                        <div class="flex items-center gap-1.5 text-[9px] text-slate-500 uppercase tracking-widest">
+                            <i data-lucide="history" class="w-3 h-3"></i> Historical Performance (FY)
+                        </div>
+                        <div class="overflow-hidden rounded-xl border border-white/5">
+                            <table class="w-full text-[11px] text-left text-slate-400">
+                                <thead class="bg-white/2 text-slate-500">
+                                    <tr>
+                                        <th class="px-4 py-2 font-semibold uppercase">Year</th>
+                                        <th class="px-4 py-2 text-right font-semibold uppercase">Revenue</th>
+                                        <th class="px-4 py-2 text-right font-semibold uppercase">Net Profit</th>
+                                        <th class="px-4 py-2 text-right font-semibold uppercase">ROE</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/2">
+                                    <?php foreach ($histories as $h): ?>
+                                        <tr class="hover:bg-white/1 transition-colors">
+                                            <td class="px-4 py-2.5 font-bold text-slate-200"><?= $h['year'] ?></td>
+                                            <td class="px-4 py-2.5 text-right"><?= $h['revenue'] ?></td>
+                                            <td class="px-4 py-2.5 text-right"><?= $h['net_profit'] ?></td>
+                                            <td class="px-4 py-2.5 text-right text-emerald-400 font-medium">
+                                                <?= number_format($h['roe'], 1) ?>%
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7">
+            <div class="h-full bg-slate-800/30 border border-sky-500/20 rounded-3xl p-6 shadow-xl flex flex-col">
+
+                <div class="flex items-center justify-between mb-6">
+                    <h6 class="flex items-center gap-2 font-bold text-sky-400 uppercase tracking-wider text-sm">
+                        <i data-lucide="bot" class="w-5 h-5"></i> AI Smart Analysis
+                    </h6>
+                    <button onclick="triggerAI('<?= $stock['code'] ?>')" id="btnAI"
+                        class="flex items-center gap-2 px-4 py-2 bg-sky-400 hover:bg-sky-300 transition-colors text-slate-900 rounded-full text-xs font-bold">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span>Update Analysis</span>
+                    </button>
+                </div>
+
+                <div class="bg-slate-950/50 rounded-2xl p-6 border border-white/5 mb-4 grow overflow-y-auto">
+                    <div id="aiContent" class="prose prose-invert prose-sm max-w-none text-justify">
+                        <?php if ($last_analysis): ?>
+                            <div id="renderArea"></div>
+                            <script>
+                                document.getElementById('renderArea').innerHTML = marked.parse(`<?= addslashes($last_analysis->analysis_content) ?>`);
+                            </script>
+                        <?php else: ?>
+                            <div class="flex flex-col items-center justify-center py-12 text-center opacity-50">
+                                <i data-lucide="brain-circuit" class="w-12 h-12 mb-4"></i>
+                                <p class="text-xs">Belum ada analisis untuk emiten ini.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>
 
 <script>
     lucide.createIcons();
+
     async function triggerAI(code) {
         const aiBox = document.getElementById('aiContent');
-        const btn = event.currentTarget;
+        const btn = document.getElementById('btnAI');
+
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>AI Thinking...';
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.innerHTML = `<svg class="animate-spin h-4 w-4 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>AI Thinking...</span>`;
+
         aiBox.style.opacity = '0.4';
+
         try {
             const response = await fetch(`<?= base_url('api/analyze') ?>/${code}`);
             const data = await response.json();
@@ -362,10 +218,12 @@ if ($day >= 1 && $day <= 5) {
                 aiBox.style.opacity = '1';
             }
         } catch (error) {
-            aiBox.innerHTML = '<span class="text-danger small">Gagal memproses AI. Pastikan server Ollama aktif.</span>';
+            aiBox.innerHTML = '<div class="text-red-400 p-4 bg-red-400/10 border border-red-400/20 rounded-xl text-xs">Gagal memproses AI. Pastikan server Ollama aktif.</div>';
+            aiBox.style.opacity = '1';
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="sparkles" class="me-1"></i> Update Analysis';
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i> <span>Update Analysis</span>`;
             lucide.createIcons();
         }
     }
