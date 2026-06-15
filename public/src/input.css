@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@source "../../app/Views/**/*.php";
+@source "../**/*.{html,js,php}";
+
 @theme {
   --color-bg-dark: #0f172a;
   --color-card-dark: #1e293b;

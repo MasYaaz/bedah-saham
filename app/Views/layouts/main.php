@@ -21,7 +21,7 @@
 <body class="flex flex-col h-full">
     <nav id="mainNav"
         class="fixed top-0 isolate inset-x-0 z-50 h-20 flex items-center transition-all duration-500 ease-in-out border-b border-transparent">
-        <div class="container mx-auto px-4 flex items-center justify-between">
+        <div class="container mx-auto max-w-7xl w-full px-4 flex items-center justify-between">
             <a href="<?= base_url('stock') ?>" class="flex items-center group relative">
                 <div
                     class="absolute -inset-2 bg-sky-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity">

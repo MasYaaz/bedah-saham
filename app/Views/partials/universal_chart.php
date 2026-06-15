@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6 items-end">
+<div class="grid grid-cols-1 md:grid-cols-12 max-w-7xl w-full gap-6 mb-6 items-end">
     <div class="md:col-span-5 flex flex-col gap-1">
         <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
             <i data-lucide="<?= $symbol === 'IHSG' ? 'globe' : 'line-chart' ?>" class="w-3.5 h-3.5 text-sky-400"></i>
@@ -36,7 +36,7 @@
 </div>
 
 <div
-    class="relative bg-linear-to-br from-slate-800/40 to-slate-950/60 backdrop-blur-xl border border-white/10 rounded-4xl p-8 shadow-2xl group">
+    class="relative max-w-7xl w-full bg-linear-to-br from-slate-800/40 to-slate-950/60 backdrop-blur-xl border border-white/10 rounded-4xl p-8 shadow-2xl group">
     <div id="chartLoader"
         class="absolute inset-0 bg-slate-900/70 backdrop-blur-md hidden items-center justify-center z-20 rounded-4xl transition-all">
         <div class="flex flex-col items-center gap-3">

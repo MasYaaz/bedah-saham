@@ -19,8 +19,8 @@ if ($day >= 1 && $day <= 5) {
 ?>
 
 <div
-    class="relative overflow-hidden bg-slate-800/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 mb-6 shadow-2xl transition-transform duration-300">
-    <div class="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+    class="w-full flex justify-center">
+    <div class="max-w-7xl grid grid-cols-1 md:grid-cols-12 w-full gap-4 bg-slate-800/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 mb-6 shadow-2xl transition-transform duration-300">
 
         <div class="md:col-span-7 flex items-center gap-4">
             <div class="bg-sky-500/10 p-4 rounded-2xl border border-sky-500/20 text-sky-400">
@@ -59,16 +59,19 @@ if ($day >= 1 && $day <= 5) {
     </div>
 </div>
 
-<div class="mb-10">
+<div class="mb-10 w-full flex flex-col justify-center items-center">
     <?= view('partials/universal_chart', [
         'symbol' => 'IHSG',
         'chart_title' => 'Indonesia Composite Index (JKSE)'
     ]) ?>
 </div>
 
-<div class="mb-8 max-w-7xl px-4">
-    <?= $this->include('partials/index_table') ?>
+<div class="w-full flex justify-center">
+    <div class="mb-8 max-w-7xl px-4">
+        <?= $this->include('partials/index_table') ?>
+    </div>
 </div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
