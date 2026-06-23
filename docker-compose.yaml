@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # SERVER WEB & PHP (CI4)
+  web_server:
+    build: .
+    container_name: bedahsaham_web
+    ports:
+      - "80:80"
+    environment:
+      - CI_ENVIRONMENT=development 
+    volumes:
+      - .:/var/www/html/
+      - ./dev-php.ini:/usr/local/etc/php/conf.d/dev-php.ini
+      - ./dev-apache.conf:/etc/apache2/sites-enabled/000-default.conf
+    networks:
+      - jaringan_bedahsaham
+    depends_on:
+      - database
+
+  # DATABASE (MariaDB)
+  database:
+    image: mariadb:11.2
+    container_name: bedahsaham_database
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${database.default.password} # Ambil dari .env
+      MYSQL_DATABASE: ${database.default.database}      # Ambil dari .env
+    volumes:
+      - bedahsaham_database:/var/lib/mysql
+    networks:
+      - jaringan_bedahsaham
+
+networks:
+  jaringan_bedahsaham: # Nama jaringan yang sudah disinkronkan
+
+volumes:
+  bedahsaham_database:
